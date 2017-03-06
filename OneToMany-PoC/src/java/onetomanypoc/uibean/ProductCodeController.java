@@ -13,18 +13,33 @@ public class ProductCodeController extends AbstractController<ProductCode> {
     @Inject
     private ProductController productListController;
 
+    // Flags to indicate if child collections are empty
+    private boolean isProductListEmpty;
+
     public ProductCodeController() {
         // Inform the Abstract parent controller of the concrete ProductCode Entity
         super(ProductCode.class);
     }
 
+    /**
+     * Set the "is[ChildCollection]Empty" property for OneToMany fields.
+     */
+    @Override
+    protected void setChildrenEmptyFlags() {
+        this.setIsProductListEmpty();
+    }
+
     public boolean getIsProductListEmpty() {
-        ProductCodeFacade ejbFacade = (ProductCodeFacade) this.getFacade();
-        ProductCode entity = this.getSelected();
-        if (entity != null) {
-            return ejbFacade.isProductListEmpty(entity);
+        return this.isProductListEmpty;
+    }
+
+    private void setIsProductListEmpty() {
+        ProductCode selected = this.getSelected();
+        if (selected != null) {
+            ProductCodeFacade ejbFacade = (ProductCodeFacade) this.getFacade();
+            this.isProductListEmpty = ejbFacade.isProductListEmpty(selected);
         } else {
-            return false;
+            this.isProductListEmpty = true;
         }
     }
 
@@ -36,7 +51,6 @@ public class ProductCodeController extends AbstractController<ProductCode> {
      */
     public String navigateProductList() {
         ProductCode selected = this.getSelected();
-
         if (selected != null) {
             ProductCodeFacade ejbFacade = (ProductCodeFacade) this.getFacade();
             productListController.setItems(ejbFacade.findProductList(selected));

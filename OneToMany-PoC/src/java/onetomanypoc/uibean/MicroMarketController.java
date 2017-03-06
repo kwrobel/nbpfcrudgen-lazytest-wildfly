@@ -13,18 +13,33 @@ public class MicroMarketController extends AbstractController<MicroMarket> {
     @Inject
     private CustomerController customerListController;
 
+    // Flags to indicate if child collections are empty
+    private boolean isCustomerListEmpty;
+
     public MicroMarketController() {
         // Inform the Abstract parent controller of the concrete MicroMarket Entity
         super(MicroMarket.class);
     }
 
+    /**
+     * Set the "is[ChildCollection]Empty" property for OneToMany fields.
+     */
+    @Override
+    protected void setChildrenEmptyFlags() {
+        this.setIsCustomerListEmpty();
+    }
+
     public boolean getIsCustomerListEmpty() {
-        MicroMarketFacade ejbFacade = (MicroMarketFacade) this.getFacade();
-        MicroMarket entity = this.getSelected();
-        if (entity != null) {
-            return ejbFacade.isCustomerListEmpty(entity);
+        return this.isCustomerListEmpty;
+    }
+
+    private void setIsCustomerListEmpty() {
+        MicroMarket selected = this.getSelected();
+        if (selected != null) {
+            MicroMarketFacade ejbFacade = (MicroMarketFacade) this.getFacade();
+            this.isCustomerListEmpty = ejbFacade.isCustomerListEmpty(selected);
         } else {
-            return false;
+            this.isCustomerListEmpty = true;
         }
     }
 
@@ -36,7 +51,6 @@ public class MicroMarketController extends AbstractController<MicroMarket> {
      */
     public String navigateCustomerList() {
         MicroMarket selected = this.getSelected();
-
         if (selected != null) {
             MicroMarketFacade ejbFacade = (MicroMarketFacade) this.getFacade();
             customerListController.setItems(ejbFacade.findCustomerList(selected));

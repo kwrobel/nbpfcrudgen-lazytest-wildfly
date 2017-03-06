@@ -12,6 +12,7 @@ import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
@@ -19,8 +20,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
@@ -28,11 +27,8 @@ import javax.xml.bind.annotation.XmlTransient;
  */
 @Entity
 @Table(name = "DISCOUNT_CODE")
-@XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "DiscountCode.findAll", query = "SELECT d FROM DiscountCode d")
-    , @NamedQuery(name = "DiscountCode.findByDiscountCode", query = "SELECT d FROM DiscountCode d WHERE d.discountCode = :discountCode")
-    , @NamedQuery(name = "DiscountCode.findByRate", query = "SELECT d FROM DiscountCode d WHERE d.rate = :rate")})
+    @NamedQuery(name = "DiscountCode.findAll", query = "SELECT d FROM DiscountCode d")})
 public class DiscountCode implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -45,7 +41,7 @@ public class DiscountCode implements Serializable {
     // @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
     @Column(name = "RATE")
     private BigDecimal rate;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "discountCode")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "discountCode", fetch = FetchType.LAZY)
     private List<Customer> customerList;
 
     public DiscountCode() {
@@ -71,7 +67,6 @@ public class DiscountCode implements Serializable {
         this.rate = rate;
     }
 
-    @XmlTransient
     public List<Customer> getCustomerList() {
         return customerList;
     }

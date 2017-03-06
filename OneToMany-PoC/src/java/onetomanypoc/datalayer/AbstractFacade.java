@@ -208,5 +208,9 @@ public abstract class AbstractFacade<T> {
     public boolean isEntityManaged(T entity) {
         return getEntityManager().contains(entity);
     }
+
+    public T findWithParents(T entity) {
+        return entity;
+    }
     
 }

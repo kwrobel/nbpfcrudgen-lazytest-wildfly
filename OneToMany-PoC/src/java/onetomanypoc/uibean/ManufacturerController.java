@@ -13,18 +13,33 @@ public class ManufacturerController extends AbstractController<Manufacturer> {
     @Inject
     private ProductController productListController;
 
+    // Flags to indicate if child collections are empty
+    private boolean isProductListEmpty;
+
     public ManufacturerController() {
         // Inform the Abstract parent controller of the concrete Manufacturer Entity
         super(Manufacturer.class);
     }
 
+    /**
+     * Set the "is[ChildCollection]Empty" property for OneToMany fields.
+     */
+    @Override
+    protected void setChildrenEmptyFlags() {
+        this.setIsProductListEmpty();
+    }
+
     public boolean getIsProductListEmpty() {
-        ManufacturerFacade ejbFacade = (ManufacturerFacade) this.getFacade();
-        Manufacturer entity = this.getSelected();
-        if (entity != null) {
-            return ejbFacade.isProductListEmpty(entity);
+        return this.isProductListEmpty;
+    }
+
+    private void setIsProductListEmpty() {
+        Manufacturer selected = this.getSelected();
+        if (selected != null) {
+            ManufacturerFacade ejbFacade = (ManufacturerFacade) this.getFacade();
+            this.isProductListEmpty = ejbFacade.isProductListEmpty(selected);
         } else {
-            return false;
+            this.isProductListEmpty = true;
         }
     }
 
@@ -36,7 +51,6 @@ public class ManufacturerController extends AbstractController<Manufacturer> {
      */
     public String navigateProductList() {
         Manufacturer selected = this.getSelected();
-
         if (selected != null) {
             ManufacturerFacade ejbFacade = (ManufacturerFacade) this.getFacade();
             productListController.setItems(ejbFacade.findProductList(selected));

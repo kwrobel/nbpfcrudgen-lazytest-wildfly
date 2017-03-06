@@ -36,8 +36,9 @@ public class PurchaseOrderController extends AbstractController<PurchaseOrder> {
      * @param event Event object for the widget that triggered an action
      */
     public void prepareCustomerId(ActionEvent event) {
-        if (this.getSelected() != null && customerIdController.getSelected() == null) {
-            customerIdController.setSelected(this.getSelected().getCustomerId());
+        PurchaseOrder selected = this.getSelected();
+        if (selected != null && customerIdController.getSelected() == null) {
+            customerIdController.setSelected(selected.getCustomerId());
         }
     }
 
@@ -48,8 +49,10 @@ public class PurchaseOrderController extends AbstractController<PurchaseOrder> {
      * @param event Event object for the widget that triggered an action
      */
     public void prepareProductId(ActionEvent event) {
-        if (this.getSelected() != null && productIdController.getSelected() == null) {
-            productIdController.setSelected(this.getSelected().getProductId());
+        PurchaseOrder selected = this.getSelected();
+        if (selected != null && productIdController.getSelected() == null) {
+            productIdController.setSelected(selected.getProductId());
         }
     }
+
 }

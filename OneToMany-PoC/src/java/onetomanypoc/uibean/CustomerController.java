@@ -18,6 +18,9 @@ public class CustomerController extends AbstractController<Customer> {
     @Inject
     private MicroMarketController zipController;
 
+    // Flags to indicate if child collections are empty
+    private boolean isPurchaseOrderListEmpty;
+
     public CustomerController() {
         // Inform the Abstract parent controller of the concrete Customer Entity
         super(Customer.class);
@@ -31,13 +34,25 @@ public class CustomerController extends AbstractController<Customer> {
         zipController.setSelected(null);
     }
 
+    /**
+     * Set the "is[ChildCollection]Empty" property for OneToMany fields.
+     */
+    @Override
+    protected void setChildrenEmptyFlags() {
+        this.setIsPurchaseOrderListEmpty();
+    }
+
     public boolean getIsPurchaseOrderListEmpty() {
-        CustomerFacade ejbFacade = (CustomerFacade) this.getFacade();
-        Customer entity = this.getSelected();
-        if (entity != null) {
-            return ejbFacade.isPurchaseOrderListEmpty(entity);
+        return this.isPurchaseOrderListEmpty;
+    }
+
+    private void setIsPurchaseOrderListEmpty() {
+        Customer selected = this.getSelected();
+        if (selected != null) {
+            CustomerFacade ejbFacade = (CustomerFacade) this.getFacade();
+            this.isPurchaseOrderListEmpty = ejbFacade.isPurchaseOrderListEmpty(selected);
         } else {
-            return false;
+            this.isPurchaseOrderListEmpty = true;
         }
     }
 
@@ -49,7 +64,6 @@ public class CustomerController extends AbstractController<Customer> {
      */
     public String navigatePurchaseOrderList() {
         Customer selected = this.getSelected();
-
         if (selected != null) {
             CustomerFacade ejbFacade = (CustomerFacade) this.getFacade();
             purchaseOrderListController.setItems(ejbFacade.findPurchaseOrderList(selected));
@@ -65,8 +79,9 @@ public class CustomerController extends AbstractController<Customer> {
      * @param event Event object for the widget that triggered an action
      */
     public void prepareDiscountCode(ActionEvent event) {
-        if (this.getSelected() != null && discountCodeController.getSelected() == null) {
-            discountCodeController.setSelected(this.getSelected().getDiscountCode());
+        Customer selected = this.getSelected();
+        if (selected != null && discountCodeController.getSelected() == null) {
+            discountCodeController.setSelected(selected.getDiscountCode());
         }
     }
 
@@ -77,8 +92,10 @@ public class CustomerController extends AbstractController<Customer> {
      * @param event Event object for the widget that triggered an action
      */
     public void prepareZip(ActionEvent event) {
-        if (this.getSelected() != null && zipController.getSelected() == null) {
-            zipController.setSelected(this.getSelected().getZip());
+        Customer selected = this.getSelected();
+        if (selected != null && zipController.getSelected() == null) {
+            zipController.setSelected(selected.getZip());
         }
     }
+
 }

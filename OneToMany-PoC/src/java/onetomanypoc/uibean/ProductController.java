@@ -18,6 +18,9 @@ public class ProductController extends AbstractController<Product> {
     @Inject
     private ProductCodeController productCodeController;
 
+    // Flags to indicate if child collections are empty
+    private boolean isPurchaseOrderListEmpty;
+
     public ProductController() {
         // Inform the Abstract parent controller of the concrete Product Entity
         super(Product.class);
@@ -31,13 +34,25 @@ public class ProductController extends AbstractController<Product> {
         productCodeController.setSelected(null);
     }
 
+    /**
+     * Set the "is[ChildCollection]Empty" property for OneToMany fields.
+     */
+    @Override
+    protected void setChildrenEmptyFlags() {
+        this.setIsPurchaseOrderListEmpty();
+    }
+
     public boolean getIsPurchaseOrderListEmpty() {
-        ProductFacade ejbFacade = (ProductFacade) this.getFacade();
-        Product entity = this.getSelected();
-        if (entity != null) {
-            return ejbFacade.isPurchaseOrderListEmpty(entity);
+        return this.isPurchaseOrderListEmpty;
+    }
+
+    private void setIsPurchaseOrderListEmpty() {
+        Product selected = this.getSelected();
+        if (selected != null) {
+            ProductFacade ejbFacade = (ProductFacade) this.getFacade();
+            this.isPurchaseOrderListEmpty = ejbFacade.isPurchaseOrderListEmpty(selected);
         } else {
-            return false;
+            this.isPurchaseOrderListEmpty = true;
         }
     }
 
@@ -49,7 +64,6 @@ public class ProductController extends AbstractController<Product> {
      */
     public String navigatePurchaseOrderList() {
         Product selected = this.getSelected();
-
         if (selected != null) {
             ProductFacade ejbFacade = (ProductFacade) this.getFacade();
             purchaseOrderListController.setItems(ejbFacade.findPurchaseOrderList(selected));
@@ -65,8 +79,9 @@ public class ProductController extends AbstractController<Product> {
      * @param event Event object for the widget that triggered an action
      */
     public void prepareManufacturerId(ActionEvent event) {
-        if (this.getSelected() != null && manufacturerIdController.getSelected() == null) {
-            manufacturerIdController.setSelected(this.getSelected().getManufacturerId());
+        Product selected = this.getSelected();
+        if (selected != null && manufacturerIdController.getSelected() == null) {
+            manufacturerIdController.setSelected(selected.getManufacturerId());
         }
     }
 
@@ -77,8 +92,10 @@ public class ProductController extends AbstractController<Product> {
      * @param event Event object for the widget that triggered an action
      */
     public void prepareProductCode(ActionEvent event) {
-        if (this.getSelected() != null && productCodeController.getSelected() == null) {
-            productCodeController.setSelected(this.getSelected().getProductCode());
+        Product selected = this.getSelected();
+        if (selected != null && productCodeController.getSelected() == null) {
+            productCodeController.setSelected(selected.getProductCode());
         }
     }
+
 }

@@ -11,6 +11,7 @@ import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
@@ -18,8 +19,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
@@ -27,13 +26,8 @@ import javax.xml.bind.annotation.XmlTransient;
  */
 @Entity
 @Table(name = "MICRO_MARKET")
-@XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "MicroMarket.findAll", query = "SELECT m FROM MicroMarket m")
-    , @NamedQuery(name = "MicroMarket.findByZipCode", query = "SELECT m FROM MicroMarket m WHERE m.zipCode = :zipCode")
-    , @NamedQuery(name = "MicroMarket.findByRadius", query = "SELECT m FROM MicroMarket m WHERE m.radius = :radius")
-    , @NamedQuery(name = "MicroMarket.findByAreaLength", query = "SELECT m FROM MicroMarket m WHERE m.areaLength = :areaLength")
-    , @NamedQuery(name = "MicroMarket.findByAreaWidth", query = "SELECT m FROM MicroMarket m WHERE m.areaWidth = :areaWidth")})
+    @NamedQuery(name = "MicroMarket.findAll", query = "SELECT m FROM MicroMarket m")})
 public class MicroMarket implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -50,7 +44,7 @@ public class MicroMarket implements Serializable {
     private Double areaLength;
     @Column(name = "AREA_WIDTH")
     private Double areaWidth;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "zip")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "zip", fetch = FetchType.LAZY)
     private List<Customer> customerList;
 
     public MicroMarket() {
@@ -92,7 +86,6 @@ public class MicroMarket implements Serializable {
         this.areaWidth = areaWidth;
     }
 
-    @XmlTransient
     public List<Customer> getCustomerList() {
         return customerList;
     }
